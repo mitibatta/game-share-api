@@ -1,11 +1,18 @@
 class Api::PostsController < ApplicationController
   before_action :set_post, only: [:show, :update, :destroy]
   def index
-    @posts = Post.all.order(created_at: :desc)
-    @user = User.all
-    @picture = Picture.all
+    page = Post.all.length.fdiv(5).ceil
+    @posts = Post.page(params[:page] ||= 1).per(5).order(created_at: :desc)
     @favorite = Favorite.all
-    render json: {posts: @posts, users: @user, pictures: @picture, favorites: @favorite}
+    @user = []
+    @picture = []
+    @posts.each do |post|
+      user = post.user
+      pic = Picture.find_by(post_id: post.id)
+      @user.push(user)
+      @picture.push(pic)
+    end
+    render json: {posts: @posts, users: @user, pictures: @picture, favorites: @favorite, pages: page}
   end
 
   def create

@@ -15,14 +15,15 @@ class Api::UsersController < ApplicationController
   end
 
   def show
-    @posts = @user.posts.all.order(created_at: :desc)
+    page = @user.posts.all.length.fdiv(5).ceil
+    @posts = @user.posts.page(params[:page] ||= 1).per(5).order(created_at: :desc)
     @pictures = []
     @favorites = Favorite.all
     @posts.each do |post|
       pic = Picture.find_by(post_id: post.id)
       @pictures.push(pic)
     end
-    render json: {user: @user, posts: @posts, pictures: @pictures, favorites: @favorites}
+    render json: {user: @user, posts: @posts, pictures: @pictures, favorites: @favorites, pages: page}
   end
 
   private
