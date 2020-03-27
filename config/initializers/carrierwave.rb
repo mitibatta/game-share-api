@@ -11,8 +11,8 @@ unless Rails.env.development? || Rails.env.test?
     config.fog_directory  = 'gsimage'
     config.cache_storage = :fog
   end
-else
-  CarrierWave.configure do |config|
-    config.asset_host = 'http://localhost:3000'
-    # config.asset_host = 'https://game-share-api.herokuapp.com'
+# else
+#   CarrierWave.configure do |config|
+#     config.asset_host = 'http://localhost:3000'
+#     # config.asset_host = 'https://game-share-api.herokuapp.com'
 end
