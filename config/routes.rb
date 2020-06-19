@@ -4,6 +4,8 @@ Rails.application.routes.draw do
     resources :users, only: [:create, :show]
     resources :sessions, only: [:create, :destroy]
     resources :posts
+    get '/posts/tags/:id', to: 'posts#tags'
+    # get '/posts/tag_post', to: 'posts#tag_post'
     resources :favorites, only: [:index, :create, :destroy]
     get '/favorites/userIndex/:id', to: 'favorites#indexUsers'
     get '/favorites/count', to: 'favorites#count'

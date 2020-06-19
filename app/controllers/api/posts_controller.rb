@@ -4,15 +4,21 @@ class Api::PostsController < ApplicationController
     page = Post.all.length.fdiv(5).ceil
     @posts = Post.page(params[:page] ||= 1).per(5).order(created_at: :desc)
     @favorite = Favorite.all
+    @tag = Tag.all
+    @tag_post = {}
     @user = []
     @picture = []
     @posts.each do |post|
+      key = post.id
+      value = post.tags
       user = post.user
       pic = Picture.find_by(post_id: post.id)
+      @tag_post[key] = value
       @user.push(user)
       @picture.push(pic)
     end
-    render json: {posts: @posts, users: @user, pictures: @picture, favorites: @favorite, pages: page}
+    # binding.pry
+    render json: {posts: @posts, users: @user, pictures: @picture, favorites: @favorite, pages: page, tags: @tag, tag_post: @tag_post}
   end
 
   def create
@@ -25,6 +31,8 @@ class Api::PostsController < ApplicationController
     if @post.text.blank?
       response_bad_request
     elsif @post.save
+      tag_list = params[:post][:tag_name].split(",")
+      @post.save_posts(tag_list)
       response_success("投稿")
     else
       response_internal_server_error
@@ -59,6 +67,44 @@ class Api::PostsController < ApplicationController
     end
   end
 
+  def tags
+    tag = Tag.find_by(name: params[:id])
+    page = tag.posts.all.length.fdiv(5).ceil
+    @posts = tag.posts.page(params[:page] ||= 1).per(5).order(created_at: :desc)
+    @favorite = Favorite.all
+    @tag = Tag.all
+    @tag_post = {}
+    @user = []
+    @picture = []
+    @posts.each do |post|
+      key = post.id
+      value = post.tags
+      user = post.user
+      pic = Picture.find_by(post_id: post.id)
+      @tag_post[key] = value
+      @user.push(user)
+      @picture.push(pic)
+    end
+    # binding.pry
+    render json: {posts: @posts, users: @user, pictures: @picture, favorites: @favorite, pages: page, tags: @tag, tag_post: @tag_post}
+  end
+
+  # def tag_post
+  #   # tag = Tag.find_by(name: @@tag)
+  #   page = @@tag.posts.all.length.fdiv(5).ceil
+  #   @posts = @@tag.posts.page(params[:page] ||= 1).per(5).order(created_at: :desc)
+  #   @favorite = Favorite.all
+  #   @tag = Tag.all
+  #   @user = []
+  #   @picture = []
+  #   @posts.each do |post|
+  #     user = post.user
+  #     pic = Picture.find_by(post_id: post.id)
+  #     @user.push(user)
+  #     @picture.push(pic)
+  #   end
+  #   render json: {posts: @posts, users: @user, pictures: @picture, favorites: @favorite, pages: page, tags: @tag}
+  # end
 
   private
   def set_post
