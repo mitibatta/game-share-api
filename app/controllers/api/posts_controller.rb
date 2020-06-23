@@ -4,7 +4,7 @@ class Api::PostsController < ApplicationController
     page = Post.all.length.fdiv(5).ceil
     @posts = Post.page(params[:page] ||= 1).per(5).order(created_at: :desc)
     @favorite = Favorite.all
-    @tag = Tag.all
+    @tag = Tag.pluck(:name)
     @tag_post = {}
     @user = []
     @picture = []
@@ -43,7 +43,8 @@ class Api::PostsController < ApplicationController
     @picture = Picture.find_by(post_id: params[:id])
     @favorites = @post.favorites
     @user = @post.user.name
-    render json: {post: @post, picture: @picture, user: @user, favorites: @favorites}
+    @tag_post = @post.tags
+    render json: {post: @post, picture: @picture, user: @user, favorites: @favorites, tag_post: @tag_post}
   end
 
   def update
@@ -72,7 +73,7 @@ class Api::PostsController < ApplicationController
     page = tag.posts.all.length.fdiv(5).ceil
     @posts = tag.posts.page(params[:page] ||= 1).per(5).order(created_at: :desc)
     @favorite = Favorite.all
-    @tag = Tag.all
+    @tag = Tag.pluck(:name)
     @tag_post = {}
     @user = []
     @picture = []
@@ -89,22 +90,6 @@ class Api::PostsController < ApplicationController
     render json: {posts: @posts, users: @user, pictures: @picture, favorites: @favorite, pages: page, tags: @tag, tag_post: @tag_post}
   end
 
-  # def tag_post
-  #   # tag = Tag.find_by(name: @@tag)
-  #   page = @@tag.posts.all.length.fdiv(5).ceil
-  #   @posts = @@tag.posts.page(params[:page] ||= 1).per(5).order(created_at: :desc)
-  #   @favorite = Favorite.all
-  #   @tag = Tag.all
-  #   @user = []
-  #   @picture = []
-  #   @posts.each do |post|
-  #     user = post.user
-  #     pic = Picture.find_by(post_id: post.id)
-  #     @user.push(user)
-  #     @picture.push(pic)
-  #   end
-  #   render json: {posts: @posts, users: @user, pictures: @picture, favorites: @favorite, pages: page, tags: @tag}
-  # end
 
   private
   def set_post
